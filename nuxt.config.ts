@@ -26,13 +26,21 @@ export default defineNuxtConfig({
     },
   },
 
+  fonts: {
+    families: [
+      { name: 'Newsreader', provider: 'google' },
+      { name: 'Work Sans', provider: 'google' },
+    ],
+  },
+
   app: {
     head: {
       htmlAttrs: { lang: 'de' },
       title: 'Mantis — Fitti',
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content' },
-        { name: 'description', content: 'Fitti — Training im Blick.' },
+        { name: 'theme-color', content: '#FBF8F3' },
+        { name: 'description', content: 'Fitti hilft dir, Workouts zu loggen, Muster zu erkennen und dranzubleiben — ohne Druck.' },
         // Ohne diese beiden startet iOS die Verknüpfung im Safari-Fenster
         // statt als eigenständige App.
         { name: 'mobile-web-app-capable', content: 'yes' },

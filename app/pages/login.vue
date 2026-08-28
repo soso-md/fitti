@@ -66,48 +66,57 @@ async function submit() {
 </script>
 
 <template>
-  <main class="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-6 p-6">
-    <h1 class="text-2xl font-semibold tracking-tight">Fitti</h1>
+  <!-- Der Verlauf ist laut Guidelines dem Einstieg vorbehalten, sonst flaches Creme. -->
+  <main
+    class="flex min-h-dvh flex-col justify-center gap-4 px-6 py-11"
+    style="background: linear-gradient(160deg, var(--color-lavender-200), var(--color-cream-50) 55%)"
+  >
+    <div class="mx-auto w-full max-w-sm">
+      <div class="mb-6 text-center">
+        <!-- Kein Logo im Handoff — die Wortmarke im Display-Serif steht dafür. -->
+        <h1 class="text-3xl">Fitti</h1>
+        <p class="text-ink-soft mt-1 text-sm">Kleine Schritte. Echter Fortschritt.</p>
+      </div>
 
-    <p v-if="confirmationSent" class="text-ink-soft text-sm">
-      Wir haben dir eine Bestätigungsmail geschickt. Öffne den Link darin.
-    </p>
+      <UiCard v-if="confirmationSent">
+        <p class="text-ink-soft text-sm">
+          Wir haben dir eine Bestätigungsmail geschickt. Öffne den Link darin,
+          dann geht es weiter.
+        </p>
+      </UiCard>
 
-    <form v-else class="flex flex-col gap-3" @submit.prevent="submit">
-      <input
-        v-model="email"
-        type="email"
-        autocomplete="email"
-        placeholder="E-Mail"
-        required
-        class="border-line rounded-card border px-4 py-3"
-      >
-      <input
-        v-model="password"
-        type="password"
-        :autocomplete="isSignUp ? 'new-password' : 'current-password'"
-        placeholder="Passwort"
-        required
-        class="border-line rounded-card border px-4 py-3"
-      >
+      <form v-else class="flex flex-col gap-4" @submit.prevent="submit">
+        <UiInput
+          v-model="email"
+          label="E-Mail"
+          type="email"
+          placeholder="du@beispiel.de"
+          autocomplete="email"
+          required
+        />
+        <UiInput
+          v-model="password"
+          label="Passwort"
+          type="password"
+          :placeholder="isSignUp ? 'Mind. 8 Zeichen' : '••••••••'"
+          :autocomplete="isSignUp ? 'new-password' : 'current-password'"
+          required
+        />
 
-      <p v-if="error" class="text-sm text-red-700">{{ error }}</p>
+        <p v-if="error" class="text-coral-600 text-sm">{{ error }}</p>
 
-      <button
-        type="submit"
-        :disabled="pending"
-        class="bg-accent rounded-card px-4 py-3 text-white disabled:opacity-60"
-      >
-        {{ isSignUp ? 'Konto anlegen' : 'Anmelden' }}
-      </button>
+        <UiButton type="submit" variant="dark" size="lg" :disabled="pending">
+          {{ isSignUp ? 'Registrieren' : 'Anmelden' }}
+        </UiButton>
 
-      <button
-        type="button"
-        class="text-ink-soft text-sm underline underline-offset-4"
-        @click="mode = isSignUp ? 'signin' : 'signup'"
-      >
-        {{ isSignUp ? 'Ich habe schon ein Konto' : 'Neues Konto anlegen' }}
-      </button>
-    </form>
+        <button
+          type="button"
+          class="text-muted text-center text-sm"
+          @click="mode = isSignUp ? 'signin' : 'signup'"
+        >
+          {{ isSignUp ? 'Zurück zum Login' : 'Noch kein Konto? Registrieren' }}
+        </button>
+      </form>
+    </div>
   </main>
 </template>

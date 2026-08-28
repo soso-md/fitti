@@ -28,3 +28,7 @@ logs
 
 # Supabase CLI
 supabase/.temp
+
+# Design-Handoff aus dem Zip. Referenz zum Nachschlagen, keine
+# Produktionsdateien -- React-Prototypen, Bundles, Uploads.
+__design/

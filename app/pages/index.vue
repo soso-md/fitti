@@ -1,4 +1,6 @@
 <script setup lang="ts">
+useHead({ title: 'Heute — Fitti' })
+
 const user = useSupabaseUser()
 const supabase = useSupabaseClient()
 
@@ -11,24 +13,30 @@ async function abmelden() {
 <template>
   <main class="mx-auto flex min-h-dvh max-w-md flex-col gap-6 p-6">
     <header>
-      <h1 class="text-2xl font-semibold tracking-tight">Fitti</h1>
-      <p class="text-ink-soft mt-1 text-sm">
-        Angemeldet als {{ user?.email }}
-      </p>
+      <h1 class="text-2xl">Heute</h1>
+      <p class="text-ink-soft mt-1 text-sm">{{ user?.email }}</p>
     </header>
 
-    <div class="border-line rounded-card border p-4">
+    <UiCard>
       <p class="text-ink-soft text-sm">
-        Grundgerüst steht: Nuxt 4, Supabase-Auth, Tailwind v4.
-        Das Design kommt aus dem Handoff.
+        Das Grundgerüst steht: Nuxt 4, Supabase-Auth, Tailwind 4 mit den
+        Fitti-Tokens. Die Screens aus dem Handoff kommen als Nächstes.
       </p>
-    </div>
+      <div class="mt-4 flex gap-2">
+        <UiTag>Kraft</UiTag>
+        <UiTag tone="success">Reha</UiTag>
+        <UiTag tone="energy">Cardio</UiTag>
+      </div>
+    </UiCard>
 
-    <button
-      class="text-ink-soft self-start text-sm underline underline-offset-4"
-      @click="abmelden"
-    >
-      Abmelden
-    </button>
+    <UiCard tint>
+      <UiProgressBar :value="3" :max="5" label="Workouts diese Woche" />
+    </UiCard>
+
+    <div class="flex flex-wrap gap-3">
+      <UiButton>Training starten</UiButton>
+      <UiButton variant="secondary">Frei loggen</UiButton>
+      <UiButton variant="ghost" @click="abmelden">Abmelden</UiButton>
+    </div>
   </main>
 </template>

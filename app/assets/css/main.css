@@ -1,29 +1,123 @@
 @import "tailwindcss";
 
 /*
- * Platzhalter-Theme. Die echten Tokens (Farben, Fonts, Radien) kommen aus
- * dem Claude-Design-Handoff und ersetzen diesen Block dann eins zu eins.
+ * Fitti Design System -- Tokens aus dem Handoff (__design/tokens/*.css).
+ * Namensraeume folgen Tailwind v4: --color-* wird zu bg-/text-/border-,
+ * --radius-* zu rounded-, --shadow-* zu shadow-, --text-* zu Schriftgroessen.
  */
 @theme {
-  --color-bg: #ffffff;
-  --color-surface: #f5f5f4;
-  --color-ink: #1c1b18;
-  --color-ink-soft: #57534e;
-  --color-muted: #8d8879;
-  --color-line: #e7e5e4;
-  --color-accent: #2f6f57;
+  /* --- Palette ------------------------------------------------------ */
+  --color-cream-50: #FBF8F3;
+  --color-cream-100: #F5EFE2;
+  --color-cream-200: #EDE4D0;
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --color-lavender-100: #EEEAFB;
+  --color-lavender-200: #DCD6F7;
+  --color-lavender-300: #C4BBF0;
+  --color-lavender-500: #8B7FE8;
+  --color-lavender-600: #6F62D8;
+  --color-lavender-700: #5A4FC0;
 
-  --radius-card: 1rem;
+  --color-ink-900: #211F2E;
+  --color-ink-700: #3D3A4D;
+  --color-ink-600: #5B5868;
+  --color-ink-400: #8A8696;
+
+  --color-butter-300: #F6DA7C;
+  --color-butter-400: #F3C94D;
+  --color-coral-300: #F0A794;
+  --color-coral-400: #E8836F;
+  --color-coral-600: #C75F4B;
+  --color-mint-300: #A8E2C4;
+  --color-mint-400: #6FCB9F;
+  --color-mint-600: #3F9D71;
+
+  /* --- Semantische Aliase --------------------------------------------
+     Der Handoff nennt sie --text-primary / --surface-app. Unter Tailwind v4
+     ist --text-* aber der Namensraum fuer Schriftgroessen, deshalb laufen
+     die Farben hier alle unter --color-*. */
+  --color-app: var(--color-cream-50);
+  --color-card: #FFFFFF;
+  --color-card-tint: var(--color-lavender-100);
+  --color-card-warm: var(--color-cream-100);
+  --color-inverse: var(--color-ink-900);
+
+  --color-ink: var(--color-ink-900);
+  --color-ink-soft: var(--color-ink-600);
+  --color-muted: var(--color-ink-400);
+  --color-on-accent: #FFFFFF;
+  --color-on-inverse: var(--color-cream-50);
+
+  --color-line: rgba(33, 31, 46, 0.08);
+  --color-line-strong: rgba(33, 31, 46, 0.14);
+
+  --color-accent: var(--color-lavender-500);
+  --color-accent-strong: var(--color-lavender-700);
+  --color-highlight: var(--color-butter-400);
+  --color-energy: var(--color-coral-400);
+  --color-success: var(--color-mint-400);
+
+  /* --- Typografie ---------------------------------------------------- */
+  --font-display: "Newsreader", ui-serif, Georgia, serif;
+  --font-body: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-md: 18px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --text-3xl: 40px;
+  --text-4xl: 52px;
+
+  --leading-tight: 1.1;
+  --leading-snug: 1.3;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  /* --- Radien -------------------------------------------------------- */
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+  --radius-pill: 999px;
+
+  /* --- Schatten ------------------------------------------------------
+     Immer lavendel-getoent, nie neutralgrau. */
+  --shadow-card: 0 8px 24px rgba(91, 79, 196, 0.12);
+  --shadow-float: 0 20px 48px rgba(33, 31, 46, 0.16);
+  --shadow-press: 0 2px 8px rgba(91, 79, 196, 0.10);
+  --inset-shadow-soft: inset 0 1px 2px rgba(33, 31, 46, 0.06);
+
+  /* --- Motion --------------------------------------------------------- */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Literale Deklarationen, damit @nuxt/fonts die Familien einsammelt. */
+html {
+  font-family: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+.font-display,
+h1, h2 {
+  font-family: "Newsreader", ui-serif, Georgia, serif;
 }
 
 @layer base {
   body {
-    background-color: var(--color-bg);
+    background-color: var(--color-app);
     color: var(--color-ink);
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
+  }
+
+  /* Display-Serif fuer die grossen Momente: Begruessung, Zahlen, Prompts. */
+  h1, h2 {
+    line-height: var(--leading-tight);
   }
 
   button, a, input, textarea, select {
@@ -33,11 +127,22 @@
   :focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
-    border-radius: 0.5rem;
+    border-radius: 12px;
   }
 }
 
-/* Platz für die iPhone-Homebar, wenn unten eine Navigation sitzt. */
+/* Platz fuer die iPhone-Homebar unter dem schwebenden Nav-Dock. */
 @utility safe-bottom {
   padding-bottom: calc(env(safe-area-inset-bottom) + var(--tw-safe-extra, 0px));
+}
+
+/*
+ * Press-State fuer Knoepfe. Laut Guidelines ist Bewegung das primaere
+ * Feedback -- kein Abdunkeln beim Hover.
+ */
+@utility press {
+  transition: transform 120ms var(--ease-standard);
+  &:active {
+    transform: scale(0.97);
+  }
 }
