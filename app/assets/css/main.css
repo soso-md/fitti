@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+/*
+ * Platzhalter-Theme. Die echten Tokens (Farben, Fonts, Radien) kommen aus
+ * dem Claude-Design-Handoff und ersetzen diesen Block dann eins zu eins.
+ */
+@theme {
+  --color-bg: #ffffff;
+  --color-surface: #f5f5f4;
+  --color-ink: #1c1b18;
+  --color-ink-soft: #57534e;
+  --color-muted: #8d8879;
+  --color-line: #e7e5e4;
+  --color-accent: #2f6f57;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --radius-card: 1rem;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  button, a, input, textarea, select {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+  }
+}
+
+/* Platz für die iPhone-Homebar, wenn unten eine Navigation sitzt. */
+@utility safe-bottom {
+  padding-bottom: calc(env(safe-area-inset-bottom) + var(--tw-safe-extra, 0px));
+}
