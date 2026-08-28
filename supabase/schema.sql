@@ -33,7 +33,7 @@ create table if not exists public.profiles (
 -- ---------------------------------------------------------------------
 create table if not exists public.exercises (
   id            uuid primary key default gen_random_uuid(),
-  user_id       uuid not null references auth.users (id) on delete cascade,
+  user_id       uuid not null default auth.uid() references auth.users (id) on delete cascade,
   name          text not null,
   muscle_groups text[] not null default '{}',
   level         text check (level in ('anfaenger', 'fortgeschritten')),
@@ -57,7 +57,7 @@ create index if not exists exercises_muscles_idx on public.exercises using gin (
 -- ---------------------------------------------------------------------
 create table if not exists public.tags (
   id         uuid primary key default gen_random_uuid(),
-  user_id    uuid not null references auth.users (id) on delete cascade,
+  user_id    uuid not null default auth.uid() references auth.users (id) on delete cascade,
   name       text not null,
   created_at timestamptz not null default now(),
 
@@ -69,7 +69,7 @@ create table if not exists public.tags (
 -- ---------------------------------------------------------------------
 create table if not exists public.blocks (
   id         uuid primary key default gen_random_uuid(),
-  user_id    uuid not null references auth.users (id) on delete cascade,
+  user_id    uuid not null default auth.uid() references auth.users (id) on delete cascade,
   name       text not null,
   deleted_at timestamptz,
   created_at timestamptz not null default now(),
@@ -106,7 +106,7 @@ create index if not exists block_exercises_block_idx on public.block_exercises (
 -- ---------------------------------------------------------------------
 create table if not exists public.workouts (
   id         uuid primary key default gen_random_uuid(),
-  user_id    uuid not null references auth.users (id) on delete cascade,
+  user_id    uuid not null default auth.uid() references auth.users (id) on delete cascade,
   name       text not null,
   deleted_at timestamptz,
   created_at timestamptz not null default now(),
@@ -140,7 +140,7 @@ create index if not exists workout_items_workout_idx on public.workout_items (wo
 -- ---------------------------------------------------------------------
 create table if not exists public.plans (
   id          uuid primary key default gen_random_uuid(),
-  user_id     uuid not null references auth.users (id) on delete cascade,
+  user_id     uuid not null default auth.uid() references auth.users (id) on delete cascade,
   name        text not null,
   repeat_mode text not null default 'weekly' check (repeat_mode in ('weekly', 'period')),
   starts_on   date,
@@ -175,7 +175,7 @@ create index if not exists plan_days_plan_idx on public.plan_days (plan_id);
 -- ---------------------------------------------------------------------
 create table if not exists public.sessions (
   id          uuid primary key default gen_random_uuid(),
-  user_id     uuid not null references auth.users (id) on delete cascade,
+  user_id     uuid not null default auth.uid() references auth.users (id) on delete cascade,
   workout_id  uuid references public.workouts (id) on delete set null,
   plan_id     uuid references public.plans (id) on delete set null,
   title       text not null,
@@ -226,7 +226,7 @@ create index if not exists session_sets_item_idx on public.session_sets (session
 -- ---------------------------------------------------------------------
 create table if not exists public.freeform_logs (
   id           uuid primary key default gen_random_uuid(),
-  user_id      uuid not null references auth.users (id) on delete cascade,
+  user_id      uuid not null default auth.uid() references auth.users (id) on delete cascade,
   sport        text not null,
   performed_at timestamptz not null default now(),
   duration_minutes integer,

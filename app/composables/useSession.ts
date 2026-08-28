@@ -42,7 +42,9 @@ export function useSession() {
     const { data: session, error: sErr } = await supabase
       .from('sessions')
       .insert({
-        user_id: user.value.id,
+        // user_id setzt Postgres per default auth.uid() -- der Client
+        // kennt die eigene ID gar nicht zuverlaessig (useSupabaseUser()
+        // liefert JWT-Claims, dort heisst das Feld "sub").
         workout_id: workoutId,
         plan_id: planId ?? null,
         title: (workout as any).name,
@@ -53,7 +55,7 @@ export function useSession() {
     if (sErr || !session) throw sErr ?? new Error('Session konnte nicht starten')
 
     // Bloecke aufloesen: ein Block wird zu je einem Item pro Uebung.
-    const items: any[] = []
+    const items: { row: any, targets: any }[] = []
     let pos = 0
 
     const sorted = [...((workout as any).workout_items ?? [])]
@@ -66,28 +68,61 @@ export function useSession() {
         const bes = [...(wi.blocks.block_exercises ?? [])].sort((a, b) => a.position - b.position)
         for (const be of bes) {
           items.push({
-            session_id: session.id,
-            exercise_id: be.exercise_id,
-            position: pos++,
-            source: 'block',
-            source_label: label,
+            row: {
+              session_id: session.id,
+              exercise_id: be.exercise_id,
+              position: pos++,
+              source: 'block',
+              source_label: label,
+            },
+            targets: be,
           })
         }
       }
       else if (wi.exercise_id) {
         items.push({
-          session_id: session.id,
-          exercise_id: wi.exercise_id,
-          position: pos++,
-          source: 'main',
-          source_label: 'Übung',
+          row: {
+            session_id: session.id,
+            exercise_id: wi.exercise_id,
+            position: pos++,
+            source: 'main',
+            source_label: 'Übung',
+          },
+          targets: wi,
         })
       }
     }
 
     if (items.length) {
-      const { error } = await supabase.from('session_items').insert(items)
+      const { data: angelegt, error } = await supabase
+        .from('session_items')
+        .insert(items.map(i => i.row))
+        .select('id, position')
       if (error) throw error
+
+      // Die Zielvorgaben aus Plan bzw. Block werden zu echten Saetzen --
+      // sonst startet man vor einer leeren Liste und muesste 3x10 @ 42.5
+      // von Hand nachtippen, obwohl es im Workout steht.
+      const saetze: any[] = []
+      for (const angelegtItem of angelegt ?? []) {
+        const quelle = items.find(i => i.row.position === angelegtItem.position)
+        const t = quelle?.targets
+        if (!t) continue
+        const anzahl = t.target_sets ?? 0
+        for (let n = 0; n < anzahl; n++) {
+          saetze.push({
+            session_item_id: angelegtItem.id,
+            position: n,
+            reps: t.target_reps ?? null,
+            weight: t.target_weight ?? null,
+            duration_seconds: t.target_seconds ?? null,
+          })
+        }
+      }
+      if (saetze.length) {
+        const { error: setErr } = await supabase.from('session_sets').insert(saetze)
+        if (setErr) throw setErr
+      }
     }
 
     return session.id as string

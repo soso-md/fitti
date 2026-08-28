@@ -67,8 +67,14 @@ const aktuellerIdx = computed(() =>
   saetze.value.findIndex(s => !s.done_at),
 )
 
-watch(aktuellerIdx, (i) => {
-  const s = saetze.value[i]
+/**
+ * An den Satz selbst gebunden, nicht an seinen Index: beim Wechsel auf die
+ * naechste Uebung bleibt der Index 0 und ein Index-Watcher wuerde schweigen
+ * -- die Felder behielten dann die Werte der vorherigen Uebung.
+ */
+const aktuellerSatz = computed(() => saetze.value[aktuellerIdx.value] ?? null)
+
+watch(aktuellerSatz, (s) => {
   reps.value = s?.reps != null ? String(s.reps) : ''
   gewicht.value = s?.weight != null ? String(s.weight) : ''
 }, { immediate: true })
