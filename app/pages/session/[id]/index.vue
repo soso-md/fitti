@@ -4,7 +4,7 @@ import type { SessionItem } from '~/types/fitti'
 const route = useRoute()
 const sessionId = route.params.id as string
 
-const { load, reorder, setSkipped } = useSession()
+const { load, reorder, setSkipped, addAdhoc } = useSession()
 
 const titel = ref('')
 const items = ref<SessionItem[]>([])
@@ -38,6 +38,14 @@ function onDrop(ziel: number) {
 async function ueberspringen(item: SessionItem) {
   item.skipped = !item.skipped
   await setSkipped(item.id, item.skipped)
+}
+
+const picker = ref(false)
+
+/** Nur fuer heute -- der Plan bleibt unberuehrt. */
+async function adhocHinzufuegen(e: any) {
+  const neu = await addAdhoc(sessionId, e.id, items.value.length)
+  items.value = [...items.value, { ...(neu as any), exercise: e, sets: [] }]
 }
 
 function meta(item: SessionItem) {
@@ -91,9 +99,11 @@ function meta(item: SessionItem) {
         </button>
       </div>
 
-      <UiButton variant="ghost" disabled>
+      <UiButton variant="ghost" @click="picker = true">
         + Übung zu heute hinzufügen (nicht zum Plan)
       </UiButton>
+
+      <ExercisePicker v-model="picker" @gewaehlt="adhocHinzufuegen" />
     </div>
 
     <!-- Fixierte Aktionsleiste, unabhängig von der Listenlänge. -->
