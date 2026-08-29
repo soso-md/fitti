@@ -161,12 +161,18 @@ create table if not exists public.plan_days (
   plan_id    uuid not null references public.plans (id) on delete cascade,
   -- ISO-Wochentag: 1 = Montag ... 7 = Sonntag, passend zu date_part('isodow').
   weekday    integer not null check (weekday between 1 and 7),
-  workout_id uuid not null references public.workouts (id) on delete cascade,
-
-  constraint plan_days_unique unique (plan_id, weekday, workout_id)
+  -- Darf leer bleiben: man weiss oft schon, an welchen Tagen trainiert
+  -- wird, aber noch nicht womit.
+  workout_id uuid references public.workouts (id) on delete cascade
 );
 
 create index if not exists plan_days_plan_idx on public.plan_days (plan_id);
+
+-- Je Tag entweder ein Workout genau einmal, oder ein leerer Platzhalter.
+create unique index if not exists plan_days_mit_workout_idx
+  on public.plan_days (plan_id, weekday, workout_id) where workout_id is not null;
+create unique index if not exists plan_days_ohne_workout_idx
+  on public.plan_days (plan_id, weekday) where workout_id is null;
 
 -- ---------------------------------------------------------------------
 -- sessions: ein durchgefuehrtes Training.
@@ -220,6 +226,26 @@ create table if not exists public.session_sets (
 create index if not exists session_sets_item_idx on public.session_sets (session_item_id);
 
 -- ---------------------------------------------------------------------
+-- sports: die waehlbaren Sportarten des freien Trainings.
+-- freeform_logs.sport bleibt bewusst Text -- ein spaeter umbenannter
+-- Eintrag soll alte Protokolle nicht veraendern.
+-- ---------------------------------------------------------------------
+create table if not exists public.sports (
+  id           uuid primary key default gen_random_uuid(),
+  user_id      uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  name         text not null,
+  metric_label text,
+  metric_type  text check (metric_type in ('sets_reps_weight', 'duration', 'distance_time', 'custom')),
+  position     integer not null default 0,
+  archived_at  timestamptz,
+  created_at   timestamptz not null default now(),
+
+  constraint sports_name_unique unique (user_id, name)
+);
+
+create index if not exists sports_user_idx on public.sports (user_id, position);
+
+-- ---------------------------------------------------------------------
 -- freeform_logs: unstrukturiertes Training (Volleyball, Schwimmen).
 -- Das Kennzahl-Feld ist generisch: metric_label passt sich der Sportart
 -- an ("Bahnen a 25m", "Distanz"), metric_type sagt, wie zu lesen ist.
@@ -259,6 +285,7 @@ alter table public.plan_days       enable row level security;
 alter table public.sessions        enable row level security;
 alter table public.session_items   enable row level security;
 alter table public.session_sets    enable row level security;
+alter table public.sports          enable row level security;
 alter table public.freeform_logs   enable row level security;
 
 -- Profil: nur die eigene Zeile.
@@ -271,7 +298,8 @@ do $$
 declare t text;
 begin
   foreach t in array array[
-    'exercises', 'tags', 'blocks', 'workouts', 'plans', 'sessions', 'freeform_logs'
+    'exercises', 'tags', 'blocks', 'workouts', 'plans', 'sessions',
+    'freeform_logs', 'sports'
   ] loop
     execute format('drop policy if exists %I_own on public.%I', t, t);
     execute format(

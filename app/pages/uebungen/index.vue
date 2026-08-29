@@ -45,9 +45,12 @@ const levelLabel = (w: string | null) => LEVELS.find(l => l.wert === w)?.label
 
 <template>
   <main class="mx-auto min-h-dvh max-w-md px-5 pt-7 pb-32">
-    <h1 class="text-xl">Übungen</h1>
-
+    <h1 class="text-xl">Bibliothek</h1>
     <div class="mt-3.5">
+      <LibraryTabs />
+    </div>
+
+    <div class="mt-4">
       <UiInput v-model="suche" placeholder="Übung suchen …" />
     </div>
 
@@ -75,12 +78,9 @@ const levelLabel = (w: string | null) => LEVELS.find(l => l.wert === w)?.label
     </div>
 
     <!-- Oben fixiert, nicht im Scrollbereich -- so im Handoff verlangt. -->
-    <div class="mt-3 flex gap-2">
+    <div class="mt-3">
       <UiButton size="sm" variant="secondary" @click="navigateTo('/uebungen/neu')">
         + Neue Übung
-      </UiButton>
-      <UiButton size="sm" variant="ghost" @click="navigateTo('/bloecke/neu')">
-        + Neuer Block
       </UiButton>
     </div>
 

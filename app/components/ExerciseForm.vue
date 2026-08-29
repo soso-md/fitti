@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Exercise } from '~/types/fitti'
 import { MUSKELGRUPPEN, LEVELS } from '~/composables/useExercises'
+import { ILLUSTRATIONEN, illustration } from '~/utils/illustrationen'
 
 /** Gemeinsames Formular fuer Anlegen und Bearbeiten. */
 const props = defineProps<{ exercise?: Exercise | null }>()
@@ -13,6 +14,7 @@ const muskeln = ref<string[]>([...(props.exercise?.muscle_groups ?? [])])
 const level = ref<string | null>(props.exercise?.level ?? null)
 const istZeit = ref(props.exercise?.is_timed ?? false)
 const hinweise = ref(props.exercise?.instructions ?? '')
+const bild = ref<string | null>(props.exercise?.image_url ?? null)
 const links = ref<string[]>(
   props.exercise?.video_links?.length ? [...props.exercise.video_links] : [''],
 )
@@ -39,6 +41,7 @@ async function speichern() {
     muscle_groups: muskeln.value,
     level: level.value,
     is_timed: istZeit.value,
+    image_url: bild.value,
     instructions: hinweise.value.trim() || null,
     video_links: links.value.map(l => l.trim()).filter(Boolean),
   }
@@ -96,6 +99,28 @@ async function speichern() {
       </div>
       <p class="text-muted mt-1.5 text-xs">
         „Auf Zeit“ zeigt im Training einen Sekunden-Timer statt der Satz-Liste.
+      </p>
+    </div>
+
+    <div>
+      <div class="text-ink-soft mb-1.5 text-sm">Illustration</div>
+      <div v-if="ILLUSTRATIONEN.length" class="flex flex-wrap gap-2">
+        <UiChip :active="bild === null" @click="bild = null">Keine</UiChip>
+        <button
+          v-for="datei in ILLUSTRATIONEN"
+          :key="datei"
+          type="button"
+          class="rounded-md press overflow-hidden border-2"
+          :class="bild === datei ? 'border-accent' : 'border-transparent'"
+          :aria-label="datei"
+          @click="bild = datei"
+        >
+          <img :src="illustration(datei)!" alt="" class="h-16 w-24 object-cover">
+        </button>
+      </div>
+      <p v-else class="text-muted text-xs">
+        Noch keine Illustrationen hinterlegt. Dateien kommen nach
+        <code>app/assets/uebungen/</code>.
       </p>
     </div>
 

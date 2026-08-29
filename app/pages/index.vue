@@ -46,18 +46,29 @@ async function starten(workoutId: string, planId: string) {
     </UiCard>
 
     <div v-else class="mt-2 flex flex-col gap-2.5">
-      <UiCard v-for="p in planned" :key="p.workout_id">
+      <UiCard v-for="p in planned" :key="`${p.plan_id}-${p.workout_id ?? 'offen'}`">
         <div class="flex items-center justify-between gap-3">
           <div class="min-w-0">
             <div class="truncate font-semibold">{{ p.workout_name }}</div>
             <div class="text-ink-soft truncate text-[13px]">{{ p.meta }}</div>
           </div>
           <UiButton
+            v-if="p.workout_id"
             size="sm"
             :disabled="starting === p.workout_id"
             @click="starten(p.workout_id, p.plan_id)"
           >
             {{ starting === p.workout_id ? '…' : 'Starten' }}
+          </UiButton>
+          <!-- Ohne Workout gibt es nichts zu starten -- stattdessen der
+               Weg dorthin, wo man eins hinterlegt. -->
+          <UiButton
+            v-else
+            size="sm"
+            variant="ghost"
+            @click="navigateTo(`/plan/${p.plan_id}`)"
+          >
+            Planen
           </UiButton>
         </div>
       </UiCard>

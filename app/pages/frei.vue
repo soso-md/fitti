@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { SPORTARTEN, KENNZAHL } from '~/composables/useFreeform'
+import type { Sport } from '~/composables/useSports'
 
 useHead({ title: 'Freies Training — Fitti' })
 
-const { create, eigeneSportarten } = useFreeform()
+const { create } = useFreeform()
+const { list: sportList, save: sportSave } = useSports()
 
-const eigene = ref<string[]>([])
-const sport = ref('Volleyball')
+const sportarten = ref<Sport[]>([])
+const sport = ref<string>('')
 const neueSportart = ref('')
 const zeigeNeue = ref(false)
 const dauer = ref('')
@@ -17,25 +18,28 @@ const pending = ref(false)
 const fehler = ref<string | null>(null)
 
 onMounted(async () => {
-  eigene.value = await eigeneSportarten()
+  sportarten.value = await sportList()
+  sport.value = sportarten.value[0]?.name ?? ''
 })
 
-const alleSportarten = computed(() => [...SPORTARTEN, ...eigene.value])
+/** Label und Bedeutung der Kennzahl kommen aus der Bibliothek. */
+const feld = computed(() => {
+  const s = sportarten.value.find(x => x.name === sport.value)
+  if (s?.metric_type === 'duration') return null
+  return {
+    label: s?.metric_label || 'Zusätzliche Kennzahl (optional)',
+    type: s?.metric_type || 'custom',
+    hint: 'z. B. 12',
+  }
+})
 
-/** Label und Bedeutung der Kennzahl haengen an der Sportart. */
-const feld = computed(() =>
-  KENNZAHL[sport.value] ?? {
-    label: 'Zusätzliche Kennzahl (optional)',
-    type: 'custom',
-    hint: 'z. B. Punkte, Distanz …',
-  },
-)
-
-function sportartAnlegen() {
-  const s = neueSportart.value.trim()
-  if (!s) return
-  if (!alleSportarten.value.includes(s)) eigene.value.push(s)
-  sport.value = s
+/** Eine hier angelegte Sportart landet in der Bibliothek, nicht nur im Log. */
+async function sportartAnlegen() {
+  const name = neueSportart.value.trim()
+  if (!name) return
+  await sportSave({ name, metric_type: 'custom', position: 10 })
+  sportarten.value = await sportList()
+  sport.value = name
   neueSportart.value = ''
   zeigeNeue.value = false
 }
@@ -47,9 +51,9 @@ async function speichern() {
     await create({
       sport: sport.value,
       duration_minutes: dauer.value ? Number(dauer.value) : null,
-      metric_label: kennzahl.value ? feld.value.label : null,
+      metric_label: kennzahl.value && feld.value ? feld.value.label : null,
       metric_value: kennzahl.value ? Number(kennzahl.value) : null,
-      metric_type: kennzahl.value ? feld.value.type : 'duration',
+      metric_type: kennzahl.value && feld.value ? feld.value.type : 'duration',
       intensity: intensitaet.value,
       note: notiz.value.trim() || null,
     })
@@ -73,12 +77,12 @@ async function speichern() {
         <div class="text-ink-soft mb-1.5 text-sm">Art — häufigste zuerst</div>
         <div class="flex flex-wrap gap-2">
           <UiChip
-            v-for="s in alleSportarten"
-            :key="s"
-            :active="sport === s"
-            @click="sport = s"
+            v-for="s in sportarten"
+            :key="s.id"
+            :active="sport === s.name"
+            @click="sport = s.name"
           >
-            {{ s }}
+            {{ s.name }}
           </UiChip>
           <UiChip dashed @click="zeigeNeue = true">+ eigene Sportart</UiChip>
         </div>
@@ -96,6 +100,7 @@ async function speichern() {
       <UiInput v-model="dauer" label="Dauer (Minuten)" type="number" placeholder="60" />
 
       <UiInput
+        v-if="feld"
         v-model="kennzahl"
         :label="feld.label"
         type="number"

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { SessionItem, SessionSet } from '~/types/fitti'
+import { illustration } from '~/utils/illustrationen'
 
 const route = useRoute()
 const sessionId = route.params.id as string
@@ -16,6 +17,7 @@ useHead({ title: 'Training läuft — Fitti' })
 const aktiv = computed(() => items.value.filter(i => !i.skipped))
 const item = computed(() => aktiv.value[idx.value] ?? null)
 const saetze = computed<SessionSet[]>(() => item.value?.sets ?? [])
+const bild = computed(() => illustration(item.value?.exercise?.image_url))
 
 onMounted(async () => {
   const { session, items: geladen } = await load(sessionId)
@@ -148,10 +150,10 @@ async function weiter() {
     <h1 class="mb-2 text-2xl">{{ item.exercise?.name }}</h1>
 
     <div
-      v-if="item.exercise?.image_url"
+      v-if="bild"
       class="bg-card rounded-lg shadow-card mb-2.5 overflow-hidden"
     >
-      <img :src="item.exercise.image_url" alt="" class="h-32 w-full object-cover">
+      <img :src="bild" alt="" class="h-32 w-full object-contain">
     </div>
     <div
       v-else

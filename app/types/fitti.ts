@@ -46,7 +46,8 @@ export interface Session {
 
 /** Ein heute anstehendes Workout, angereichert um seine Herkunft. */
 export interface PlannedWorkout {
-  workout_id: string
+  /** Leer, wenn der Plantag noch kein Workout hat -- dann nicht startbar. */
+  workout_id: string | null
   workout_name: string
   plan_id: string
   plan_name: string

@@ -17,7 +17,7 @@ onMounted(async () => {
 const woche = computed(() => {
   const map: Record<number, string[]> = {}
   for (const p of plaene.value)
-    for (const t of p.tage) (map[t.weekday] ??= []).push(t.workout_name)
+    for (const t of p.tage) (map[t.weekday] ??= []).push(t.workout_name ?? 'offen')
   return map
 })
 
@@ -72,9 +72,7 @@ function zeitraum(p: PlanRow) {
 
     <div class="mt-4 flex flex-col gap-2">
       <UiButton variant="secondary" @click="navigateTo('/plan/neu')">+ Neuer Plan</UiButton>
-      <UiButton variant="ghost" @click="navigateTo('/workouts/neu')">
-        + Neues Workout erstellen
-      </UiButton>
+      <UiButton variant="ghost" @click="navigateTo('/workouts')">Workouts verwalten</UiButton>
       <UiButton variant="ghost" @click="navigateTo('/bloecke')">Blöcke verwalten</UiButton>
     </div>
 

@@ -15,9 +15,11 @@ onMounted(async () => {
 
 <template>
   <main class="mx-auto min-h-dvh max-w-md px-5 pt-7 pb-32">
-    <NuxtLink to="/uebungen" class="text-muted block py-2 text-sm">‹ Zurück</NuxtLink>
-    <h1 class="text-xl">Blöcke</h1>
-    <p class="text-ink-soft mt-1 text-sm">
+    <h1 class="text-xl">Bibliothek</h1>
+    <div class="mt-3.5">
+      <LibraryTabs />
+    </div>
+    <p class="text-ink-soft mt-4 text-sm">
       Wiederverwendbar. Eine Änderung wirkt in jedem Workout, das den Block nutzt.
     </p>
 

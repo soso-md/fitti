@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Exercise } from '~/types/fitti'
 import { LEVELS } from '~/composables/useExercises'
+import { illustration } from '~/utils/illustrationen'
 
 const route = useRoute()
 const id = route.params.id as string
@@ -18,6 +19,8 @@ onMounted(async () => {
   letztes.value = await letztesErgebnis(id)
   pending.value = false
 })
+
+const bild = computed(() => illustration(uebung.value?.image_url))
 
 const levelLabel = computed(() => LEVELS.find(l => l.wert === uebung.value?.level)?.label)
 
@@ -55,10 +58,10 @@ async function archivieren() {
     </div>
 
     <div
-      v-if="uebung.image_url"
+      v-if="bild"
       class="bg-card rounded-lg shadow-card mt-4 overflow-hidden"
     >
-      <img :src="uebung.image_url" alt="" class="h-44 w-full object-cover">
+      <img :src="bild" alt="" class="h-44 w-full object-contain">
     </div>
     <div
       v-else

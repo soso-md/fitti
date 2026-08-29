@@ -56,11 +56,6 @@ async function speichern() {
     fehler.value = 'Der Plan braucht einen Namen.'
     return
   }
-  const ohneWorkout = gewaehlteTage.value.filter(t => !tage.value[t.iso])
-  if (ohneWorkout.length) {
-    fehler.value = `Ohne Workout: ${ohneWorkout.map(t => t.kurz).join(', ')}.`
-    return
-  }
   if (modus.value === 'period' && !bis.value) {
     fehler.value = 'Ein Zeitraum-Plan braucht ein Enddatum.'
     return
@@ -76,7 +71,12 @@ async function speichern() {
       starts_on: props.plan?.starts_on ?? new Date().toISOString().slice(0, 10),
       ends_on: bis.value || null,
       on_expiry: nachAblauf.value,
-      tage: gewaehlteTage.value.map(t => ({ weekday: t.iso, workout_id: tage.value[t.iso]! })),
+      // Ein Tag ohne Workout ist erlaubt -- er markiert den Trainingstag,
+      // das Was kann spaeter kommen.
+      tage: gewaehlteTage.value.map(t => ({
+        weekday: t.iso,
+        workout_id: tage.value[t.iso] || null,
+      })),
     })
     emit('gespeichert')
   }
@@ -116,19 +116,40 @@ async function archivieren() {
     <div>
       <h2 class="mb-2 font-sans text-base font-semibold">Workout pro Tag</h2>
       <div class="flex flex-col gap-2">
-        <button
+        <div
           v-for="t in gewaehlteTage"
           :key="t.iso"
-          type="button"
-          class="bg-card rounded-md shadow-card flex items-center gap-2.5 px-3.5 py-3 text-left"
-          @click="pickerTag = t.iso"
+          class="bg-card rounded-md shadow-card flex items-center gap-1 pl-3.5"
         >
           <b class="w-6 shrink-0">{{ t.kurz }}</b>
-          <span class="flex-1 truncate" :class="!tage[t.iso] && 'text-muted'">
-            {{ tage[t.iso] ? workoutName(tage[t.iso]!) : 'Workout wählen …' }}
-          </span>
-          <span class="text-muted shrink-0" aria-hidden="true">›</span>
-        </button>
+
+          <!-- Belegter Tag fuehrt zum Workout, wo man es auch starten kann.
+               Das Umhaengen sitzt daneben, sonst waere der haeufigere Weg
+               (hinschauen, starten) hinter dem selteneren versteckt. -->
+          <NuxtLink
+            v-if="tage[t.iso]"
+            :to="`/workouts/${tage[t.iso]}`"
+            class="min-w-0 flex-1 truncate py-3"
+          >
+            {{ workoutName(tage[t.iso]!) }}
+          </NuxtLink>
+          <button
+            v-else
+            type="button"
+            class="text-muted min-w-0 flex-1 truncate py-3 text-left"
+            @click="pickerTag = t.iso"
+          >
+            Noch offen — Workout wählen …
+          </button>
+
+          <button
+            type="button"
+            class="text-lavender-600 shrink-0 px-3 py-3 text-[13px]"
+            @click="pickerTag = t.iso"
+          >
+            {{ tage[t.iso] ? 'ändern' : '' }}
+          </button>
+        </div>
         <p v-if="!gewaehlteTage.length" class="text-muted text-xs">
           Erst Tage oben wählen.
         </p>
@@ -191,19 +212,38 @@ async function archivieren() {
       @update:model-value="v => !v && (pickerTag = null)"
     >
       <div class="flex flex-col gap-2">
-        <button
+        <div
           v-for="w in workouts"
           :key="w.id"
-          type="button"
-          class="bg-card-warm rounded-md px-3.5 py-3 text-left"
-          @click="tage = { ...tage, [pickerTag!]: w.id }; pickerTag = null"
+          class="bg-card-warm rounded-md flex items-center gap-2 px-3.5 py-1"
         >
-          <div class="font-semibold">{{ w.name }}</div>
-          <div class="text-ink-soft text-xs">{{ w.items.length }} Einträge</div>
-        </button>
+          <button
+            type="button"
+            class="min-w-0 flex-1 py-2 text-left"
+            @click="tage = { ...tage, [pickerTag!]: w.id }; pickerTag = null"
+          >
+            <div class="truncate font-semibold">{{ w.name }}</div>
+            <div class="text-ink-soft text-xs">{{ w.items.length }} Einträge</div>
+          </button>
+          <!-- Ohne diesen Weg waere ein bestehendes Workout nur ueber die
+               URL erreichbar -- der Picker ist die Stelle, an der man merkt,
+               dass etwas daran fehlt. -->
+          <NuxtLink
+            :to="`/workouts/${w.id}`"
+            class="text-lavender-600 shrink-0 px-2 py-3 text-[13px]"
+          >
+            bearbeiten
+          </NuxtLink>
+        </div>
         <p v-if="!workouts.length" class="text-muted py-2 text-sm">
-          Noch kein Workout angelegt.
+          Noch kein Workout angelegt. Der Tag darf auch leer bleiben.
         </p>
+        <UiButton
+          variant="ghost"
+          @click="tage = { ...tage, [pickerTag!]: '' }; pickerTag = null"
+        >
+          Offen lassen
+        </UiButton>
         <UiButton variant="ghost" @click="navigateTo('/workouts/neu')">
           + Neues Workout erstellen
         </UiButton>

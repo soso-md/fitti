@@ -12,7 +12,7 @@ export interface PlanRow {
   ends_on: string | null
   on_expiry: 'extend' | 'archive' | 'manual' | null
   archived_at: string | null
-  tage: { weekday: number, workout_id: string, workout_name: string }[]
+  tage: { weekday: number, workout_id: string | null, workout_name: string | null }[]
 }
 
 export function usePlans() {
@@ -36,7 +36,7 @@ export function usePlans() {
       tage: (p.plan_days ?? [])
         .map((d: any) => ({
           weekday: d.weekday, workout_id: d.workout_id,
-          workout_name: d.workouts?.name ?? '?',
+          workout_name: d.workouts?.name ?? null,
         }))
         .sort((a: any, b: any) => a.weekday - b.weekday),
     }))
@@ -53,7 +53,7 @@ export function usePlans() {
     starts_on: string | null
     ends_on: string | null
     on_expiry: string | null
-    tage: { weekday: number, workout_id: string }[]
+    tage: { weekday: number, workout_id: string | null }[]
   }) {
     const stamm = {
       name: werte.name,

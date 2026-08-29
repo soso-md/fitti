@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" width="400" height="240" role="img" aria-label="Beinpresse: sitzend, Knie gebeugt, Füße drücken die Platte des Schlittens nach oben">
+  <rect width="400" height="240" rx="20" fill="#EEEAFB"/>
+  <g fill="none" stroke="#C4BBF0" stroke-width="5" stroke-linecap="round">
+    <path d="M150 196 L322 92"/>
+    <path d="M150 214 L322 110"/>
+  </g>
+  <g fill="none" stroke="#211F2E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M40 214h96"/><path d="M58 214v-18"/><path d="M120 214v-18"/>
+    <path d="M56 190 h68"/><path d="M56 190 L38 122"/>
+  </g>
+  <g fill="none" stroke="#211F2E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="44" cy="108" r="14" fill="#FBF8F3"/>
+    <path d="M50 122 L74 180"/>
+    <path d="M58 142 L88 158"/>
+    <path d="M74 180 L152 150"/>
+    <path d="M152 150 L206 178"/>
+  </g>
+  <path d="M198 196 L232 138" fill="none" stroke="#211F2E" stroke-width="6" stroke-linecap="round"/>
+  <g stroke="#211F2E" stroke-width="4" stroke-linejoin="round">
+    <rect x="228" y="112" width="62" height="48" rx="9" fill="#8B7FE8"/>
+    <path d="M248 100 v72" fill="none" stroke="#5A4FC0" stroke-linecap="round"/>
+    <path d="M270 100 v72" fill="none" stroke="#5A4FC0" stroke-linecap="round"/>
+  </g>
+  <g fill="none" stroke="#E8836F" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M306 96 L344 74"/><path d="M332 66 L346 73 L341 88"/>
+  </g>
+</svg>

@@ -8,12 +8,19 @@ const route = useRoute()
 const items = [
   { key: 'home', label: 'Heute', to: '/', d: 'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z' },
   { key: 'plan', label: 'Plan', to: '/plan', d: 'M3 3v18h18M8 17V9m5 8V5m5 12v-5' },
-  { key: 'exercises', label: 'Übungen', to: '/uebungen', d: 'M6.5 6.5l11 11M4 9l5-5M15 20l5-5' },
+  {
+    key: 'exercises', label: 'Bibliothek', to: '/uebungen',
+    d: 'M6.5 6.5l11 11M4 9l5-5M15 20l5-5',
+    // Die Bibliothek hat vier Reiter unter eigenen Pfaden -- alle sollen
+    // dasselbe Symbol hervorheben.
+    auch: ['/bloecke', '/workouts', '/sportarten'],
+  },
   { key: 'stats', label: 'Stats', to: '/stats', d: 'M12 2a10 10 0 100 20 10 10 0 000-20zM12 6v6l4 2' },
 ]
 
 const active = computed(() =>
-  items.find(i => i.to !== '/' && route.path.startsWith(i.to))?.key ?? 'home',
+  items.find(i => i.to !== '/'
+    && [i.to, ...(i.auch ?? [])].some(p => route.path.startsWith(p)))?.key ?? 'home',
 )
 </script>
 

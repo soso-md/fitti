@@ -38,10 +38,12 @@ export function useToday() {
       })
       .map((d: any) => ({
         workout_id: d.workout_id,
-        workout_name: d.workouts?.name ?? 'Workout',
+        workout_name: d.workouts?.name ?? 'Trainingstag',
         plan_id: d.plans.id,
         plan_name: d.plans.name,
-        meta: d.plans.name,
+        // Ohne Workout laesst sich nichts starten -- die Karte zeigt den
+        // Tag trotzdem an, damit er nicht stillschweigend verschwindet.
+        meta: d.workout_id ? d.plans.name : `${d.plans.name} · noch kein Workout`,
       }))
 
     // Montag dieser Woche als Startpunkt der Wochenzaehlung.
