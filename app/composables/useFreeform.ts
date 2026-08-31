@@ -30,5 +30,5 @@ export function useFreeform() {
     if (error) throw error
   }
 
-  return { list, eigeneSportarten, create }
+  return { list, create }
 }
